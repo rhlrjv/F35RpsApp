@@ -1,43 +1,44 @@
-function PlayRoundRequest(p1, p2, observer) {
+function PlayRoundRequest(throw1, throw2, roundObserver) {
     this.run = () => {
         if (invalid()) {
-            observer.invalid()
-        } else if (draw()) {
-            observer.tie()
+            roundObserver.invalid()
+        } else if (tie()) {
+            roundObserver.tie()
         } else if (p1Wins()) {
-            observer.p1_wins();
+            roundObserver.p1_wins();
         } else {
-            observer.p2_wins();
+            roundObserver.p2_wins();
         }
     };
 
     const invalid = () => {
-        return !VALID_SHAPES.includes(p1) ||
-            !VALID_SHAPES.includes(p2)
+        return !VALID_THROWS.includes(throw1) ||
+            !VALID_THROWS.includes(throw2)
     };
 
-    const draw = () => {
-        return p1 === p2
+    const tie = () => {
+        return throw1 === throw2
     };
 
     const p1Wins = () => {
-        return p1 === THROW.rock && p2 === THROW.scissors ||
-            p1 === THROW.scissors && p2 === THROW.paper ||
-            p1 === THROW.paper && p2 === THROW.rock
+        return throw1 === THROW.rock && throw2 === THROW.scissors ||
+            throw1 === THROW.scissors && throw2 === THROW.paper ||
+            throw1 === THROW.paper && throw2 === THROW.rock
     };
 
-    const THROW = {
-        rock: 'rock',
-        paper: 'paper',
-        scissors: 'scissors'
-    };
-
-    const VALID_SHAPES = [THROW.rock, THROW.paper, THROW.scissors]
+    const VALID_THROWS = [THROW.rock, THROW.paper, THROW.scissors]
 }
+
 function RPS() {
-    this.playGame = (p1, p2, observer) => {
-        new PlayRoundRequest(p1, p2, observer).run()
+    this.playRound = (throw1, throw2, roundObserver) => {
+        new PlayRoundRequest(throw1, throw2, roundObserver).run()
     }
 }
 
-module.exports = { RPS }
+const THROW = {
+    rock: 'rock',
+    paper: 'paper',
+    scissors: 'scissors'
+};
+
+module.exports = { RPS, THROW }
