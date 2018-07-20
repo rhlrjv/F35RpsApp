@@ -29,6 +29,12 @@ describe('PlayForm', () => {
         return domFixture.querySelector('.result').innerText
     }
 
+    function inputUserThrow(selector, value) {
+        const input = domFixture.querySelector('[name="'+ selector +'"]')
+        input.value = value
+        ReactTestUtils.Simulate.change(input)
+    }
+
     it('should display invalid when RPS returns invalid', () => {
         const alwaysInvalidGameStub = {
             play: (t1, t2, roundObserver) => roundObserver.invalid()
@@ -75,23 +81,12 @@ describe('PlayForm', () => {
 
     it('should pass user inputs to RPS', function () {
         const gameSpy = jasmine.createSpyObj('game', ['play'])
-
-        // setup
         renderPlayForm(gameSpy)
 
-        let input;
-        input = domFixture.querySelector('[name="p1_throw"]')
-        input.value = 'rock'
-        ReactTestUtils.Simulate.change(input)
-
-        input = domFixture.querySelector('[name="p2_throw"]')
-        input.value = 'sailboat'
-        ReactTestUtils.Simulate.change(input)
-
-        // action
+        inputUserThrow('p1_throw', 'rock')
+        inputUserThrow('p2_throw', 'sailboat')
         play()
 
-        // assertion
         expect(gameSpy.play).toHaveBeenCalledWith('rock', 'sailboat', jasmine.any(Object))
     })
 })
