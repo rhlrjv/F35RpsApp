@@ -1,6 +1,7 @@
 const ReactDOM = require('react-dom')
 const ReactTestUtils = require('react-dom/test-utils')
 const React = require('react')
+const {PlayForm} = require('../src/PlayForm')
 
 describe('PlayForm', () => {
     let domFixture
@@ -30,14 +31,14 @@ describe('PlayForm', () => {
     }
 
     function inputUserThrow(selector, value) {
-        const input = domFixture.querySelector('[name="'+ selector +'"]')
+        const input = domFixture.querySelector('[name="' + selector + '"]')
         input.value = value
         ReactTestUtils.Simulate.change(input)
     }
 
     it('should display invalid when RPS returns invalid', () => {
         const alwaysInvalidGameStub = {
-            play: (t1, t2, roundObserver) => roundObserver.invalid()
+            playRound: (t1, t2, roundObserver) => roundObserver.invalid()
         }
         renderPlayForm(alwaysInvalidGameStub)
 
@@ -48,7 +49,7 @@ describe('PlayForm', () => {
 
     it('should display tie when RPS returns tie', () => {
         const alwaysTieGameStub = {
-            play: (t1, t2, roundObserver) => roundObserver.tie()
+            playRound: (t1, t2, roundObserver) => roundObserver.tie()
         }
         renderPlayForm(alwaysTieGameStub)
 
@@ -56,10 +57,10 @@ describe('PlayForm', () => {
         play()
         expect(getResultText()).toBe('Tie!')
     })
-    
+
     it('should display p1_wins when RPS returns p1_wins', () => {
         const alwaysP1WinsGameStub = {
-            play: (t1, t2, roundObserver) => roundObserver.p1_wins()
+            playRound: (t1, t2, roundObserver) => roundObserver.p1_wins()
         }
         renderPlayForm(alwaysP1WinsGameStub)
 
@@ -67,10 +68,10 @@ describe('PlayForm', () => {
         play()
         expect(getResultText()).toBe('Player 1 Wins!')
     })
-    
+
     it('should display p2_wins when RPS returns p2_wins', () => {
         const alwaysP2WinsGameStub = {
-            play: (t1, t2, roundObserver) => roundObserver.p2_wins()
+            playRound: (t1, t2, roundObserver) => roundObserver.p2_wins()
         }
         renderPlayForm(alwaysP2WinsGameStub)
 
@@ -80,52 +81,16 @@ describe('PlayForm', () => {
     })
 
     it('should pass user inputs to RPS', function () {
-        const gameSpy = jasmine.createSpyObj('game', ['play'])
+        const p1_throw = Math.random().toString();
+        const p2_throw = Math.random().toString();
+
+        const gameSpy = jasmine.createSpyObj('game', ['playRound'])
         renderPlayForm(gameSpy)
 
-        inputUserThrow('p1_throw', 'rock')
-        inputUserThrow('p2_throw', 'sailboat')
+        inputUserThrow('p1_throw', p1_throw)
+        inputUserThrow('p2_throw', p2_throw)
         play()
 
-        expect(gameSpy.play).toHaveBeenCalledWith('rock', 'sailboat', jasmine.any(Object))
+        expect(gameSpy.playRound).toHaveBeenCalledWith(p1_throw, p2_throw, jasmine.any(Object))
     })
 })
-// Test code ends
-
-// Production code begins
-
-class PlayForm extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {}
-    }
-
-    tie() {
-        this.setState({result: 'Tie!'})
-    }
-
-    invalid() {
-        this.setState({result: 'Invalid!'})
-    }
-
-    p1_wins() {
-        this.setState({result: 'Player 1 Wins!'})
-    }
-
-    p2_wins() {
-        this.setState({result: 'Player 2 Wins!'})
-    }
-
-    onClickHandler() {
-        this.props.game.play('foo', 'bar', this)
-    }
-
-    render() {
-        return <div>
-            <div className="result">{this.state.result}</div>
-            <input name="p1_throw"/>
-            <input name="p2_throw"/>
-            <button onClick={this.onClickHandler.bind(this)}>Play!</button>
-        </div>
-    }
-}
